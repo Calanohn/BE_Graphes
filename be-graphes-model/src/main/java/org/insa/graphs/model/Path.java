@@ -36,44 +36,53 @@ public class Path {
     	
         List<Arc> arcs = new ArrayList<Arc>();
         List<Arc> res = new ArrayList<Arc>();
+        Path ret;
         
-        
-        
-        for(int i=0; i<nodes.size()-1;i++)
+        if(nodes.size()==0)
         {
-        	arcs = nodes.get(i).getSuccessors();
-        	
-        	double time = 10000000;
-        	
-        	for( Arc arc : arcs)
-        	{
-        		if(arc.getDestination()==nodes.get(i+1) && arc.getMinimumTravelTime()<time)
-        		{
-        			if(time==10000000)
-        				{res.add(arc);}
-        			else
-        			{
-        				res.remove(i);
-        				res.add(arc);
-        			}
-        			
-        			time = arc.getMinimumTravelTime();
-        			
-        			
-        		}
-        	}
-        	//if(dist==10000000)  IllegalArgumentException;
-        	
+        	ret = new Path(graph);
         }
+        else {
+        if(nodes.size() > 1)
+        {
+	        for(int i=0; i<nodes.size()-1;i++)
+	        {
+	        	arcs = nodes.get(i).getSuccessors();
+	        	
+	        	double time = Float.MAX_VALUE;
+	        	
+	        	for( Arc arc : arcs)
+	        	{
+	        		if(arc.getDestination()==nodes.get(i+1) && arc.getMinimumTravelTime()<time)
+	        		{
+	        			if(time==Float.MAX_VALUE)
+	        				{res.add(arc);}
+	        			else
+	        			{
+	        				res.remove(i);
+	        				res.add(arc);
+	        			}
+	        			
+	        			time = arc.getMinimumTravelTime();
+	        			
+	        			
+	        		}
+	        		if(time==Float.MAX_VALUE)
+	                {
+	                    throw new IllegalArgumentException();
+	                }
+	        	}
+	        	
+	        }
+	        ret = new Path(graph, res);
+        }
+        else
+        {
+        	ret = new Path(graph, nodes.get(0));
+        }}
         
-        
-        
-        
-        
-        
-        
-        
-        return new Path(graph, res);
+         
+        return ret;
     }
 
     /**
@@ -94,35 +103,54 @@ public class Path {
     	
     	List<Arc> arcs = new ArrayList<Arc>();
         List<Arc> res = new ArrayList<Arc>();
+        Path ret;
         
-        
-        
-        for(int i=0; i<nodes.size()-1;i++)
+        if(nodes.size()==0)
         {
-        	arcs = nodes.get(i).getSuccessors();
-        	
-        	float dist = 10000000;
-        	
-        	for( Arc arc : arcs)
-        	{
-        		if(arc.getDestination()==nodes.get(i+1) && arc.getLength()<dist)
-        		{
-        			if(dist==10000000)
-        				{res.add(arc);}
-        			else
-        			{
-        				res.remove(i);
-        				res.add(arc);
-        			}
-        			
-        			dist = arc.getLength();
-        			
-        			
-        		}
-        	}
-        	
+        	ret = new Path(graph);
         }
-        return new Path(graph, res);
+        else {
+        if(nodes.size() > 1)
+        {
+	        for(int i=0; i<nodes.size()-1;i++)
+	        {
+	        	arcs = nodes.get(i).getSuccessors();
+	        	
+	        	float dist = Float.MAX_VALUE;
+	        	
+	        	for( Arc arc : arcs) // tous les successeurs du noeuds en cours
+	        	{
+	        		if(arc.getDestination()==nodes.get(i+1) && arc.getLength()<=dist)
+	        		{
+	        			if(dist==Float.MAX_VALUE)
+	        				{res.add(arc);}
+	        			else
+	        			{
+	        				res.remove(i);
+	        				res.add(arc);
+	        			}
+	        			
+	        			dist = arc.getLength();
+	        		}
+	        	}
+	
+	            if(dist==Float.MAX_VALUE)
+	            {
+	                throw new IllegalArgumentException();
+	            }
+	        	
+	        }
+        ret = new Path(graph, res);
+        }
+        else
+        {
+        ret = new Path(graph, nodes.get(0));
+        }}
+        
+        
+        //ret.origin=nodes.get(0);
+        		
+        return ret;
     }
 
     /**
@@ -272,10 +300,11 @@ public class Path {
         {
         	if(this.getArcs().get(0).getOrigin()==this.getOrigin())
         	{
+        		//&& this.getArcs().get(-1).getDestination()==this.getDestination()
         		int i=0;
-        		while(i<this.size()-1 && valid)
+        		while(i<this.size()-2 && valid)
         		{
-        			if(this.getArcs().get(i).getDestination()!=this.getArcs().get(i).getOrigin())
+        			if(this.getArcs().get(i).getDestination()!=this.getArcs().get(i+1).getOrigin())
                         {valid = false;}
         			
         			i++;
