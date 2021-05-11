@@ -12,7 +12,7 @@ public class LabelStar extends Label implements Comparable <LabelStar>{
 		this.Estimated_Cost = Math.sqrt(Node.getPoint.getLattitude * Node.getPoint.getLattitude + Node.getPoint.getLontitude * Node.getPoint.getLontitude); 
 	}
 	
-	public float getTotalCost ()
+	public float getCost ()
 	{
 		return this.cout + this.Estimated_Cost;
 	}

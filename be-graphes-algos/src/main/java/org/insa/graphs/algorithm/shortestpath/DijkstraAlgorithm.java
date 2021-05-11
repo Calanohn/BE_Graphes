@@ -1,5 +1,7 @@
 package org.insa.graphs.algorithm.shortestpath;
-import org.insa.graphs.model.*;
+import org.insa.graphs.model.Arc;
+import org.insa.graphs.model.Node;
+import org.insa.graphs.model.Path;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,9 +9,7 @@ import java.util.List;
 
 import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
-import org.insa.graphs.algorithm.utils.ElementNotFoundException;
 
-import org.insa.graphs.algorithm.shortestpath.ShortestPathAlgorithm;
 
 
 public class DijkstraAlgorithm extends ShortestPathAlgorithm {
@@ -18,19 +18,65 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         super(data);
     }
     
-    /*private void initLabel (Label label, BinaryHeap<Label> tas)
-    {
-    	tas.insert(label);
-    }*/
+    private class Label implements Comparable <Label>{
+    	
+    	private Node sommet_courant;
+    	private boolean marque;
+    	private float cout;
+    	private Arc pere;
+    	
+    	public Label(Node s){
+    		this.sommet_courant = s;
+    		this.cout = 1.0f/0.0f;
+    		this.pere = null;
+    	}
+    	
+    	public float getCost() {
+    		return this.cout;
+    	}
+    	
+    	public Node get_Som() {
+    		return this.sommet_courant;
+    	}
+    	
+    	public boolean getMark() {
+    		return this.marque;
+    	}
+    	
+    	public void Mark() {
+    		this.marque = true;
+    	}
+    	public void Set_Som(Node n) {
+    		this.sommet_courant = n;
+    	}
+    	
+    	public void Set_Cost(float n) {
+    		this.cout = n;
+    	}
+    	
+    	public void Set_father(Arc p) {
+    		this.pere = p;
+    	}
+    	
+    	public Arc Get_father() {
+    		return this.pere;
+    	}
+    	
+    	public int compareTo(Label l) {
+    		return Float.compare(this.cout, l.cout);
+    	}
+    	
+    }
 
     @Override
     protected ShortestPathSolution doRun() {
         final ShortestPathData data = getInputData();
         Label courant = null;
         boolean continuer = true;
+        boolean no_sol = false;
         
         //Label[] labels = new Label[data.getGraph().size()];
-        BinaryHeap<Label> TAS = new BinaryHeap();
+        BinaryHeap<Label> TAS = new BinaryHeap<Label>();
         Label[] Corresp = new Label[data.getGraph().size()];
         float new_cost;
         
@@ -47,22 +93,10 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         	Corresp[label.get_Som().getId()] = label;
         	
         }
-        
-        
-        
-        
+
         System.out.println("creation du tas check");
+
         
-        //ArrayList<Node> Fini = new ArrayList<Node>(data.getGraph().getNodes());
-        //List<Arc> recherche = new ArrayList<Arc>();
-        
-        
-        
-        //Corresp[data.getOrigin().getId()].Set_Cost(0);
-    	//TAS.insert(Corresp[data.getOrigin().getId()]);
-        
-        //for(int i = 0; i<data.getGraph().size()/2 ;i++) //passage sur tous les points du graphes
-        //for(int i = 0; i<4;i++)
         int compte = 1;
         boolean nouveau = false;
         
@@ -70,6 +104,13 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         {
         	compte++;
         	
+        	if(TAS.isEmpty())
+        	{
+        	continuer = false;
+        	no_sol = true;
+        	}
+        	else
+        	{
         	TAS.findMin().Mark();
         	courant = TAS.deleteMin(); //on prend le plus petit
         	//courant.Mark(); //on le marque
@@ -83,42 +124,50 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         	{
         		if(data.isAllowed(n))
         		{
-        		notifyNodeReached(n.getDestination());
+        			notifyNodeReached(n.getDestination());
         		
-        		new_cost = n.getLength() + courant.getCost();
+        			new_cost = n.getLength() + courant.getCost();
         		//System.out.println(new_cost + " " + Corresp[n.getDestination().getId()].getCost());
-        		if(new_cost < Corresp[n.getDestination().getId()].getCost()) 
-        		{
-        			if(Corresp[n.getDestination().getId()].getCost()>=1.0f/0.0f) nouveau = true;
-        				
-        			Corresp[n.getDestination().getId()].Set_Cost(new_cost);
-        			Corresp[n.getDestination().getId()].Set_father(n);
-        			
-        			if(n.getDestination() == data.getDestination()) continuer = false;
-        			
-        			if(nouveau)
-            		{
-        				nouveau = false;
-            			TAS.insert(Corresp[n.getDestination().getId()]);
-            			System.out.println("ajout de  : " + Corresp[n.getDestination().getId()].get_Som().getId());
-            		}
-        			else
-        			{
-        				System.out.println("ajout de  : " + Corresp[n.getDestination().getId()].get_Som().getId());
-        				TAS.remove(Corresp[n.getDestination().getId()]);
-        				TAS.insert(Corresp[n.getDestination().getId()]);
-        				
-        			}
-        		}
+	        		if(new_cost < Corresp[n.getDestination().getId()].getCost()) 
+	        		{
+	        			if(Corresp[n.getDestination().getId()].getCost()>=1.0f/0.0f) nouveau = true;
+	        				
+	        				Corresp[n.getDestination().getId()].Set_Cost(new_cost);
+	        				Corresp[n.getDestination().getId()].Set_father(n);
+	        			
+	        			if(n.getDestination() == data.getDestination()) continuer = false;
+	        			
+	        			if(nouveau)
+	            		{
+	        				nouveau = false;
+	            			TAS.insert(Corresp[n.getDestination().getId()]);
+	            			System.out.println("ajout de  : " + Corresp[n.getDestination().getId()].get_Som().getId());
+	            		}
+	        			else
+	        			{
+	        				System.out.println("ajout de  : " + Corresp[n.getDestination().getId()].get_Som().getId());
+	        				TAS.remove(Corresp[n.getDestination().getId()]);
+	        				TAS.insert(Corresp[n.getDestination().getId()]);
+	        				
+	        			}
+	        		}
         		}
         							
         	}
-
+        	}
         	
         }
         
-        
         List<Node> chemin = new ArrayList<Node>();
+        
+        if(no_sol)
+        {
+        	System.out.println("pas de solution");
+        	return new ShortestPathSolution(data, Status.INFEASIBLE, Path.createShortestPathFromNodes(data.getGraph(), chemin));
+        }
+        else
+        {
+        
         
         chemin.add(data.getDestination());
         
@@ -132,7 +181,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         Collections.reverse(chemin);
         System.out.println("gg");
         return new ShortestPathSolution(data, Status.OPTIMAL, Path.createShortestPathFromNodes(data.getGraph(), chemin));
-        
+        }
     }
 
 }
+
+
