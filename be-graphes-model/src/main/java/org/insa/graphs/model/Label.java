@@ -4,7 +4,7 @@ public class Label implements Comparable <Label>{
 	
 	private Node sommet_courant;
 	private boolean marque;
-	private float cout;
+	public float cout;
 	private Arc pere;
 	
 	public Label(Node s){
@@ -44,8 +44,13 @@ public class Label implements Comparable <Label>{
 		return this.pere;
 	}
 	
+	public float getTotalCost()
+	{
+	    return this.cout;
+	}
+	
 	public int compareTo(Label l) {
-		return Float.compare(this.cout, l.cout);
+		return Float.compare(this.getTotalCost(), l.getTotalCost());
 	}
 	
 }

@@ -1,29 +1,32 @@
 package org.insa.graphs.model;
-import Label.java;
-import Node;
 
-public class LabelStar extends Label implements Comparable <LabelStar>{
+public class LabelStar extends Label {
 	
 	private float Estimated_Cost;
 	
+	
 	public LabelStar(Node O, Node D)
 	{
-		super(Node O);
-		this.Estimated_Cost = Math.sqrt(Node.getPoint.getLattitude * Node.getPoint.getLattitude + Node.getPoint.getLontitude * Node.getPoint.getLontitude); 
+		super(O);
+    	this.Estimated_Cost = (float)O.getPoint().distanceTo(D.getPoint());
 	}
 	
-	public float getCost ()
-	{
-		return this.cout + this.Estimated_Cost;
-	}
-	
-	public int compareTo(LabelStar l) {
-		if(Float.compare(this.cout + this.Estimated_Cost, l.cout + this.Estimated_Cost))
-			{return Float.compare(this.cout + this.Estimated_Cost, l.cout + this.Estimated_Cost);}
-		else
-		{
-			return Float.compare(this.Estimated_Cost, this.Estimated_Cost);
-		}
-		
-	}
+	 public float getTotalCost()
+	    {
+	    	return this.cout + this.Estimated_Cost;
+	    }
+	    
+	 public float getEstimated()
+	    {
+	    	return this.Estimated_Cost;
+	    }
+	    	
+	 /*public int compareTo(LabelStar l) {
+	    	if(Float.compare(this.getTotalCost(), ((LabelStar) l).getTotalCost()) != 0)
+	    		{return Float.compare(this.getTotalCost(), ((LabelStar) l).getTotalCost());}
+	    	else
+	    	{
+	    		return Float.compare(this.getEstimated(), ((LabelStar) l).getEstimated());
+	    	}
+	    }*/
 }
