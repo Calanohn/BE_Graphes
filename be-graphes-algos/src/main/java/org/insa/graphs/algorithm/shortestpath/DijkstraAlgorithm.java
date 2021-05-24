@@ -20,57 +20,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         super(data);
     }
     
-    /*public class Label implements Comparable <Label>{
-    	
-    	private Node sommet_courant;
-    	private boolean marque;
-    	private float cout;
-    	private Arc pere;
-    	
-    	public Label(Node s){
-    		this.sommet_courant = s;
-    		this.cout = 1.0f/0.0f;
-    		this.pere = null;
-    	}
-    	
-    	public float getCost() {
-    		return this.cout;
-    	}
-    	
-    	public Node get_Som() {
-    		return this.sommet_courant;
-    	}
-    	
-    	public boolean getMark() {
-    		return this.marque;
-    	}
-    	
-    	public void Mark() {
-    		this.marque = true;
-    	}
-    	public void Set_Som(Node n) {
-    		this.sommet_courant = n;
-    	}
-    	
-    	public void Set_Cost(float n) {
-    		this.cout = n;
-    	}
-    	
-    	public void Set_father(Arc p) {
-    		this.pere = p;
-    	}
-    	
-    	public Arc Get_father() {
-    		return this.pere;
-    	}
-    	
-    	public int compareTo(Label l) {
-    		return Float.compare(this.cout, l.cout);
-    	}
-    	
-    }*/
-    
-    
     protected Label[] InitCorresp(ShortestPathData data) {
     	Label[] Corresp = new Label[data.getGraph().size()];
     	
@@ -94,29 +43,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
     @Override
     protected ShortestPathSolution doRun() {
         final ShortestPathData data = getInputData();
-        //Label courant = null;
         boolean continuer = true;
         boolean no_sol = false;
-        float new_cost;
-        
-        //Label[] labels = new Label[data.getGraph().size()];
-        /*BinaryHeap<Label> TAS = new BinaryHeap<Label>();
-        Label[] Corresp = new Label[data.getGraph().size()];
-        float new_cost;
-        
-        for(int i=0; i < data.getGraph().size(); i++) //Construction de Corresp
-        {
-        	Label label = new Label(data.getGraph().get(i));
-        	
-        	if(data.getGraph().get(i) == data.getOrigin())
-        	{
-        		label.Set_Cost(0);
-        		TAS.insert(label);
-        	}
-        	
-        	Corresp[label.get_Som().getId()] = label;
-        	
-        }*/
+        double new_cost;
         
         Label courant= null;
         
@@ -126,13 +55,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
         TAS.insert(Corresp[data.getOrigin().getId()]);
         
-
-        
-        int compte = 1;
         
         while(continuer)
         {
-        	compte++;
         	
         	if(TAS.isEmpty())
         	{
@@ -146,7 +71,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         	if(courant == Corresp[data.getDestination().getId()]) continuer = false;
         	
         	notifyNodeMarked(courant.get_Som());
-        	//System.out.println("etape :" + compte + " noeud : " + Corresp[courant.get_Som().getId()].get_Som().getId());
         	
         	
         	for(Arc n: courant.get_Som().getSuccessors()) //mise a jour pour chaque successeur
@@ -155,8 +79,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         		{
         			notifyNodeReached(n.getDestination());
         		
-        			new_cost = n.getLength() + courant.getCost();
-        		//System.out.println(new_cost + " " + Corresp[n.getDestination().getId()].getCost());
+        			new_cost = data.getCost(n)+ courant.getCost();
 	        		if(new_cost < Corresp[n.getDestination().getId()].getCost()) 
 	        		{
 	        			if(Corresp[n.getDestination().getId()].getCost()>=1.0f/0.0f)
@@ -165,11 +88,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 	        				Corresp[n.getDestination().getId()].Set_father(n);
 	        			
 	            			TAS.insert(Corresp[n.getDestination().getId()]);
-	            			//System.out.println("ajout de  : " + Corresp[n.getDestination().getId()].get_Som().getId());
-	            		}
+	            			}
 	        			else
 	        			{
-	        				//System.out.println("ajout de  : " + Corresp[n.getDestination().getId()].get_Som().getId());
 	        				TAS.remove(Corresp[n.getDestination().getId()]);
 	        				Corresp[n.getDestination().getId()].Set_Cost(new_cost);
 	        				Corresp[n.getDestination().getId()].Set_father(n);
@@ -188,7 +109,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         
         if(no_sol)
         {
-        	System.out.println("pas de solution");
         	return new ShortestPathSolution(data, Status.INFEASIBLE, Path.createShortestPathFromNodes(data.getGraph(), chemin));
         }
         else
@@ -197,15 +117,16 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         
         chemin.add(data.getDestination());
         
-        //System.out.println("avant boucle");
+        
         while(chemin.get(chemin.size()-1) != data.getOrigin()) //retour sur le chemin
         {
-        	//System.out.println("dans la boucle");
+        	
         	chemin.add(Corresp[chemin.get(chemin.size()-1).getId()].Get_father().getOrigin());
         }
         
         Collections.reverse(chemin);
         return new ShortestPathSolution(data, Status.OPTIMAL, Path.createShortestPathFromNodes(data.getGraph(), chemin));
+       
         }
     }
 
